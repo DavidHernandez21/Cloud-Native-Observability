@@ -15,7 +15,7 @@ data:
           http:
     exporters:
       otlp:
-        endpoint: "$NODE_IP:4317"
+        endpoint: "otel-collector-standalone-opentelemetry-collector:4317"
         tls:
           insecure: true
     service:
@@ -55,7 +55,7 @@ spec:
         - name: shopper
           image: codeboten/shopper:chapter9
         - name: collector
-          image: otel/opentelemetry-collector:0.43.0
+          image: otel/opentelemetry-collector:0.102.1
           command:
             - "/otelcol"
             - "--config=/conf/otel-sidecar-config.yml"

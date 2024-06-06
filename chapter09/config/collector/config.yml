@@ -6,14 +6,19 @@ extraEnvs:
 
 mode: daemonset
 
+# https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/UPGRADING.md
+image:
+  repository: "otel/opentelemetry-collector-k8s"
+
 config:
   exporters:
     otlp:
+      # service name created using the standalone collector i.e. using the deployment
       endpoint: otel-collector-standalone-opentelemetry-collector:4317
       tls:
         insecure: true
-    logging:
-      loglevel: debug
+    debug:
+      verbosity: detailed
   processors:
     resource:
       attributes:
@@ -21,11 +26,14 @@ config:
           value: ${NODE_NAME}
           action: upsert
   service:
+    telemetry:
+      logs:
+        level: DEBUG
     pipelines:
       logs:
         exporters:
           - otlp
-          - logging
+          - debug
         processors:
           - batch
           - memory_limiter
@@ -33,7 +41,7 @@ config:
       metrics:
         exporters:
           - otlp
-          - logging
+          - debug
         processors:
           - batch
           - memory_limiter
@@ -41,7 +49,7 @@ config:
       traces:
         exporters:
           - otlp
-          - logging
+          - debug
         processors:
           - batch
           - memory_limiter

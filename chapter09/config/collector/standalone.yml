@@ -1,11 +1,20 @@
 mode: deployment
 
-config:
-  exporters:
-    logging:
-      loglevel: debug
+# https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/UPGRADING.md
+image:
+  repository: "otel/opentelemetry-collector-k8s"
 
 resources:
   limits:
-    cpu: 1
+    cpu: "1"
     memory: 512Mi
+  requests:
+    cpu: "0.5"
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 30
+  targetMemoryUtilizationPercentage: 30

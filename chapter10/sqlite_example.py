@@ -2,7 +2,7 @@ import logging
 import os
 import sqlite3
 from opentelemetry import trace
-from opentelemetry.exporter.jaeger.proto.grpc import JaegerExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.sqlite3 import SQLite3Instrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.resources import Resource
@@ -11,10 +11,8 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 def configure_opentelemetry():
     SQLite3Instrumentor().instrument()
-    exporter = JaegerExporter(insecure=True)
-    provider = TracerProvider(
-        resource=Resource.create({"service.name": "sqlite_example"})
-    )
+    exporter = OTLPSpanExporter(insecure=True)
+    provider = TracerProvider(resource=Resource.create({"service.name": "sqlite_example"}))
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
 

@@ -3,12 +3,13 @@ receivers:
     protocols:
       grpc:
 exporters:
-  logging:
-    loglevel: debug
+  debug:
+    verbosity: detailed
   zipkin:
     endpoint: http://zipkin:9411/api/v2/spans
-  jaeger:
-    endpoint: jaeger:14250
+  otlp/jaeger: # <2>
+    # https://opentelemetry.io/blog/2023/jaeger-exporter-collector-migration/
+    endpoint: jaeger:4317
     tls:
       insecure: true
   prometheus:
@@ -17,17 +18,25 @@ exporters:
       enabled: true
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    labels:
-      resource:
-        service.name: "job"
+
+
+
+processors:
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [logging, zipkin, jaeger]
+      exporters: [debug, zipkin, otlp/jaeger, debug]
     metrics:
       receivers: [otlp]
-      exporters: [logging, prometheus]
+      exporters: [debug, prometheus, debug]
     logs:
       receivers: [otlp]
-      exporters: [logging, loki]
+      processors: [resource]
+      exporters: [debug, loki, debug]
