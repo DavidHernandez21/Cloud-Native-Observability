@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -21,12 +24,16 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1641691845720,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_datasource"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -36,16 +43,32 @@
       "id": 26,
       "panels": [],
       "repeat": "service",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_datasource"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "${service}",
       "type": "row"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -58,6 +81,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -103,10 +127,13 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -115,10 +142,12 @@
             "type": "prometheus",
             "uid": "prometheus_datasource"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by (status)(rate(request_count{service_name=\"${service}\"}[1m]))",
+          "expr": "sum by (status)(rate(request_count_total{service_name=\"${service}\"}[1m]))",
           "interval": "",
           "legendFormat": "{{status}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -126,12 +155,19 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -144,6 +180,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -189,10 +226,13 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -248,6 +288,10 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -261,7 +305,11 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -294,8 +342,9 @@
         "combine": true,
         "legend": {
           "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         }
       },
       "pluginVersion": "8.3.3",
@@ -318,14 +367,27 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_datasource"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 27
       },
       "id": 32,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_datasource"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Logs",
       "type": "row"
     },
@@ -338,7 +400,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 28
       },
       "id": 2,
       "options": {
@@ -354,6 +416,10 @@
       "pluginVersion": "8.2.1",
       "targets": [
         {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki_datasource"
+          },
           "expr": "{job=~\"grocery-store|inventory|shopper\"}",
           "refId": "A"
         }
@@ -362,29 +428,33 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 34,
-  "style": "light",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
-        "definition": "request_count",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus_datasource"
+        },
+        "definition": "label_values(service_name)",
         "hide": 0,
         "includeAll": true,
         "multi": false,
         "name": "service",
         "options": [],
         "query": {
-          "query": "request_count",
-          "refId": "StandardVariableQuery"
+          "qryType": 1,
+          "query": "label_values(service_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
-        "regex": "/.*service_name=\"([^\"]*)\"/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -392,7 +462,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},

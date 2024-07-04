@@ -2,7 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
   hostmetrics:
     scrapers:
       cpu:
@@ -12,16 +14,27 @@ receivers:
       memory:
       network:
   docker_stats:
-    endpoint: file:///var/run/docker.sock
+    # endpoint: file:///var/run/docker.sock
     collection_interval: 2s
     timeout: 20s
-    api_version: 1.24
-    provide_per_core_cpu_metrics: true
+    api_version: 1.45
+    metrics:
+      container.cpu.usage.percpu:
+        enabled: true
+  
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: otel-collector
+          scrape_interval: 5s
+          static_configs:
+            - targets: [localhost:8888]
 exporters:
-  logging:
-    loglevel: debug
-  jaeger:
-    endpoint: jaeger:14250
+  # debug:
+  #   verbosity: detailed
+  otlp/jaeger: # <2>
+    # https://opentelemetry.io/blog/2023/jaeger-exporter-collector-migration/
+    endpoint: jaeger:4317
     tls:
       insecure: true
   prometheus:
@@ -30,17 +43,22 @@ exporters:
       enabled: true
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    labels:
-      resource:
-        telemetry.sdk.language: "telemetry_sdk_language"
-        telemetry.sdk.name: "telemetry_sdk_name"
-        telemetry.sdk.version: "telemetry_sdk_version"
-        net.host.name: "net_host_name"
-        net.host.ip: "net_host_ip"
-        service.name: "job"
-        severity: "severity"
-      attributes:
-        severity: ""
+
+processors:
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name, telemetry.sdk.language, telemetry.sdk.name, telemetry.sdk.version, net.host.name, net.host.ip, severity
+  
+  attributes:
+    actions:
+      - action: insert
+        key: loki.attribute.labels
+        value: severity
+
+
+
 extensions:
   health_check:
 service:
@@ -48,7 +66,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [jaeger]
+      exporters: [otlp/jaeger]
     metrics:
       receivers: [docker_stats, hostmetrics, otlp]
       exporters: [prometheus]
