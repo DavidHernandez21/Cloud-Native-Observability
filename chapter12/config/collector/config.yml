@@ -4,12 +4,15 @@ receivers:
       grpc:
 
 exporters:
-  logging:
-    loglevel: debug
+  debug:
+    verbosity: detailed
+
 
 processors:
   tail_sampling:
     decision_wait: 5s
+    # For example, you may want to continue capturing only 10% of all traces but always
+    # capture traces representing operations that took longer than 1 second to complete.
     policies:
       [
         {
@@ -17,6 +20,7 @@ processors:
           type: probabilistic,
           probabilistic: { sampling_percentage: 10 },
         },
+        # Supplying no upper bound will result in a policy sampling anything greater than threshold_ms
         { name: slow, type: latency, latency: { threshold_ms: 1000 } },
       ]
 
@@ -25,4 +29,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [tail_sampling]
-      exporters: [logging]
+      exporters: [debug]

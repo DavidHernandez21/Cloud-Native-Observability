@@ -40,3 +40,13 @@ tar -xzf otelcol.tar.gz otelcol-contrib
 ---
 
 _Cloud Native Observability_
+
+
+** NOTE **
+
+> Choosing to sample traces on known characteristics introduces bias in the
+selection of spans that could inadvertently hide useful telemetry. Tread
+carefully when configuring sampling to use non-probabilistic data as it may
+exclude more information than you'd like. Combining probabilistic and
+non-probabilistic sampling, as in the previous example, allows us to work
+around this limitation.

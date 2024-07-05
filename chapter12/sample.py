@@ -1,11 +1,14 @@
-from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace import TracerProvider, Tracer
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.sdk.trace.sampling import ALWAYS_OFF, ALWAYS_ON, TraceIdRatioBased
+from opentelemetry.sdk.trace import sampling
 
-def configure_tracer(sampler):
+
+def configure_tracer(sampler: sampling.Sampler) -> Tracer:
     provider = TracerProvider(sampler=sampler)
     provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
     return provider.get_tracer(__name__)
+
 
 always_on_tracer = configure_tracer(ALWAYS_ON)
 always_off_tracer = configure_tracer(ALWAYS_OFF)

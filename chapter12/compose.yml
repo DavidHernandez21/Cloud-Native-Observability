@@ -1,0 +1,11 @@
+---
+services:
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    container_name: opentelemetry-collector
+    volumes:
+      - ./config/collector/config.yml/:/etc/opentelemetry-collector.yml
+    command:
+      - "--config=/etc/opentelemetry-collector.yml"
+    # so local python app can connect to the collector  
+    network_mode: host
